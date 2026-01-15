@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use eframe::egui;
 use egui::ViewportBuilder;
 
@@ -32,7 +34,7 @@ struct MyEguiApp {
 impl Default for MyEguiApp {
     fn default() -> Self {
         Self {
-            text_size: 40.0,
+            text_size: 20.0,
             text_color: egui::Color32::WHITE,
             background_color: egui::Color32::from_rgba_unmultiplied(10, 10, 10, 220),
             padding: 10,
