@@ -1,6 +1,8 @@
 use eframe::egui;
 use egui::ViewportBuilder;
 
+mod wpm;
+
 fn main() {
     let native_options = eframe::NativeOptions {
         viewport: ViewportBuilder::default()
@@ -24,6 +26,7 @@ struct MyEguiApp {
     text_color: egui::Color32,
     background_color: egui::Color32,
     padding: i8,
+    wpm_tracker: wpm::WpmTracker,
 }
 
 impl Default for MyEguiApp {
@@ -33,6 +36,7 @@ impl Default for MyEguiApp {
             text_color: egui::Color32::WHITE,
             background_color: egui::Color32::from_rgba_unmultiplied(10, 10, 10, 220),
             padding: 10,
+            wpm_tracker: wpm::WpmTracker::new(),
         }
     }
 }
@@ -52,6 +56,10 @@ impl eframe::App for MyEguiApp {
         [0.0, 0.0, 0.0, 0.0]
     }
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Sync keystrokes from background listener
+        self.wpm_tracker.update();
+        ctx.request_repaint();
+
         let mut visual = egui::Visuals::dark();
         visual.panel_fill = self.background_color;
         ctx.set_visuals(visual);
@@ -65,9 +73,10 @@ impl eframe::App for MyEguiApp {
             .show(ctx, |ui| {
                 ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Extend);
 
-                let text = "Some WPM";
+                let wpm = self.wpm_tracker.calculate_wpm();
+                let text = format!("{:.0} WPM", wpm);
                 let response = ui.label(
-                    egui::RichText::new(text)
+                    egui::RichText::new(&text)
                         .size(self.text_size)
                         .color(self.text_color),
                 );
